@@ -28,7 +28,8 @@ end
 
 function save_chart_info(chart_info)
     os.execute("mkdir -p db/" .. chart_info["hash"]:sub(1, 2))
-    local file = io.open("db/" .. chart_info["hash"]:sub(1, 2) .. "/" .. chart_info["hash"]:sub(3, -1) .. ".json", "w")
+    local path = "db/" .. chart_info["hash"]:sub(1, 2) .. "/" .. chart_info["hash"]:sub(3, -1) .. ".json"
+    local file = io.open(path, "w")
     file:write(json.encode(chart_info))
     file:close()
 end
@@ -49,7 +50,7 @@ function main()
 
     for diff in ivalues(diffs) do
         for steps_type in ivalues(steps_types) do
-            notes, bpms = SL_ChartParser.GetSimfileChartString(chart_string, steps_type, diff, "", file_type)
+            notes, bpms, diff_number = SL_ChartParser.GetSimfileChartString(chart_string, steps_type, diff, "", file_type)
             if notes and bpms then
                 local hash = sha1.sha1(notes..bpms):sub(1, 16)
                 local chart_info = {
@@ -62,6 +63,7 @@ function main()
                     bpms = bpms,
                     steps_type = steps_type,
                     diff = diff,
+                    diff_number = diff_number,
                     hash = hash,
                     directory = path.basename(path.dirname(arg[1])),
                     pack_name = path.basename(path.dirname(path.dirname(arg[1]))),

@@ -116,13 +116,15 @@ end
 --    Difficulty    - a string like "Beginner" or "Challenge" or "Edit"
 --    Filetype      - either "sm" or "ssc"
 --
--- GetSimfileChartString() returns two value:
+-- GetSimfileChartString() returns three values:
 --    NoteDataString, a substring from SimfileString that contains the just the requested (minimized) note data
 --    BPMs, a substring from SimfileString that contains the BPM string for this specific chart
+--    DiffNumber, a number representing a numerical difficulty of the chart
 
 local GetSimfileChartString = function(SimfileString, StepsType, Difficulty, StepsDescription, Filetype)
 	local NoteDataString = nil
 	local BPMs = nil
+	local DiffNumber = nil
 
 	-- ----------------------------------------------------------------
 	-- StepMania uses each steps' "Description" attribute to uniquely
@@ -172,6 +174,14 @@ local GetSimfileChartString = function(SimfileString, StepsType, Difficulty, Ste
 				end
 			end
 
+			local diffNumber = -1
+			for meter in normalizedNoteData:gmatch("#METER:(.-);") do
+				if diffNumber == -1 and meter ~= '' then
+					diffNumber = tonumber(meter)
+					break
+				end
+			end
+
 			-- Find the chart that matches our difficulty and game type.
 			if (stepsType == StepsType and difficulty == Difficulty) then
 				-- Ensure that we've located the correct edit stepchart within the SSC file.
@@ -189,6 +199,9 @@ local GetSimfileChartString = function(SimfileString, StepsType, Difficulty, Ste
 					-- Get the chart data, remove comments, and then get rid of all non-'\n' whitespace.
 					NoteDataString = normalizedNoteData:match("#NOTES2?:[\n]*([^;]*)\n?$"):gsub("//[^\n]*", ""):gsub('[\r\t\f\v ]+', '')
 					NoteDataString = MinimizeChart(NoteDataString)
+
+					DiffNumber = diffNumber
+
 					break
 				end
 			end
@@ -215,6 +228,7 @@ local GetSimfileChartString = function(SimfileString, StepsType, Difficulty, Ste
 				local stepsType = parts[2]:gsub("[^%w-]", "")
 				local difficulty = parts[4]:gsub("[^%w]", "")
 				local description = parts[3]:gsub("^%s*(.-)", "")
+				local diffNumber = parts[5]:gsub("[^%d]", "")
 				-- Find the chart that matches our difficulty and game type.
 				if (stepsType == StepsType and difficulty == Difficulty) then
 					-- Ensure that we've located the correct edit stepchart within the SSC file.
@@ -222,6 +236,7 @@ local GetSimfileChartString = function(SimfileString, StepsType, Difficulty, Ste
 					if (difficulty ~= "Edit" or description == StepsDescription) then
 						NoteDataString = parts[7]:gsub("//[^\n]*", ""):gsub('[\r\t\f\v ]+', '')
 						NoteDataString = MinimizeChart(NoteDataString)
+						DiffNumber = tonumber(diffNumber)
 						break
 					end
 				end
@@ -229,7 +244,7 @@ local GetSimfileChartString = function(SimfileString, StepsType, Difficulty, Ste
 		end
 	end
 
-	return NoteDataString, BPMs
+	return NoteDataString, BPMs, DiffNumber
 end
 
 m = {}
