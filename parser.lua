@@ -20,7 +20,7 @@ local GetSimfileString = function(filename)
     if not (filetype=="ssc" or filetype=="sm") then return end
 
     local file = io.open(filename, "r")
-    local contents = file:read("*all") 
+    local contents = file:read("*all")
     file:close()
 
     return contents, filetype
@@ -37,13 +37,13 @@ function main()
     -- skip Edits because they use some weird logic to match a chart
     local diffs = {"Beginner", "Easy", "Medium", "Hard", "Expert", "Challenge"}
     local steps_types = {"dance-single", "dance-double", "dance-solo", "dance-routine", "dance-couple"}
-    
+
     local chart_string, file_type = GetSimfileString(arg[1])
 
     local title = chart_string:match("#TITLE:(.-);")
-    local titletranslit = chart_string:match("#TITLETRANSLIT:(.);") or ""
+    local titletranslit = chart_string:match("#TITLETRANSLIT:(.-);") or ""
     local subtitle = chart_string:match("#SUBTITLE:(.-);") or ""
-    local subtitletranslit = chart_string:match("#SUBTITLETRANSLIT:(.);") or ""
+    local subtitletranslit = chart_string:match("#SUBTITLETRANSLIT:(.-);") or ""
     local artist = chart_string:match("#ARTIST:(.-);")
     local artisttranslit = chart_string:match("#ARTISTTRANSLIT:(.-);") or ""
 
