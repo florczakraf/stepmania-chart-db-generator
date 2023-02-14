@@ -44,7 +44,7 @@ Here's an example of a produced json file:
 ## Usage
 Make sure you have a `lua` interpreter, `find` and `xargs` available.
 ```
-$ find /path/to/Songs/ \( -name '*.sm' -o -name '*.ssc' \) -print0 | xargs -0 -P 16 -I {} lua parser.lua "{}"
+$ find /path/to/Songs/ \( -iname '*.sm' -o -iname '*.ssc' \) -print0 | xargs -0 -P 16 -I {} lua parser.lua "{}"
 ```
 The above command will look for all `.sm` and `.ssc`
 files in the provided directory tree and pass them to
