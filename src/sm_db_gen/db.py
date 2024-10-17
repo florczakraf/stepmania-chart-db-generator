@@ -83,6 +83,10 @@ class InMemStorage(StorageV2):
     def num_packs(self) -> int:
         return len(self._packs)
 
+    @property
+    def last_update(self) -> datetime.datetime:
+        return self._last_update
+
     @classmethod
     def from_disk(cls, path: Path) -> "InMemStorage":
         storage = cls()
