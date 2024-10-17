@@ -11,7 +11,7 @@ from pprint import pprint
 import simfile
 import tqdm
 
-from sm_db_gen.db import StorageV2, InMemStorage, Chart
+from sm_db_gen.db import StorageV2, InMemStorage, Chart, STORAGE_DRIVERS
 from sm_db_gen.reference import get_v1_reference
 
 
@@ -143,6 +143,9 @@ def _get_parser():
         help="Number of workers to use to parallelize the workload",
     )
     parser.add_argument("--db", type=Path, default=Path("db_v2"), help="Path to the output db directory")
+    parser.add_argument(
+        "--db-driver", choices=STORAGE_DRIVERS, default="lazy", help="Driver for interacting with the db"
+    )
 
     return parser
 
@@ -305,7 +308,9 @@ def main():
 
     if args.db.exists():
         print(f"Loading database from: {args.db}")
-        storage = InMemStorage.from_disk(args.db)
+        driver = STORAGE_DRIVERS[args.db_driver]
+        storage = driver.from_disk(args.db)
+
         print("Packs:", storage.num_packs)
         print("Charts:", storage.num_charts)
     else:

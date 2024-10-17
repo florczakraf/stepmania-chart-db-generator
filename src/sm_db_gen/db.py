@@ -1,6 +1,7 @@
 import datetime
 import json
 from collections import defaultdict
+from contextlib import suppress
 from pathlib import Path
 
 
@@ -170,3 +171,130 @@ class InMemStorage(StorageV2):
 
     def get_charts(self, pack: str) -> list[Chart]:
         return [self._charts[hash] for hash in self._packs[pack]]
+
+
+class LazyStorage(StorageV2):
+    def __init__(self):
+        self._packs = defaultdict(set)
+        self._charts = {}
+        self._last_update = None
+        self._location = None
+
+        self._num_disk_packs = 0
+        self._num_disk_charts = 0
+
+    # these are just a guesstimates until we save
+    @property
+    def num_charts(self) -> int:
+        return self._num_disk_charts + len(self._charts)
+
+    @property
+    def num_packs(self) -> int:
+        return self._num_disk_packs + len(self._packs)
+
+    @property
+    def last_update(self):
+        return self._last_update
+
+    @classmethod
+    def from_disk(cls, path: Path) -> "LazyStorage":
+        storage = cls()
+
+        storage._location = path
+
+        metadata = json.loads((path / "metadata.json").read_text())
+        storage._last_update = datetime.datetime.fromisoformat(metadata["last_update"])
+        storage._num_disk_charts = metadata["num_charts"]
+        storage._num_disk_packs = metadata["num_packs"]
+
+        return storage
+
+    def to_disk(self, path: Path):
+        new_packs = 0
+        new_charts = 0
+
+        packs_dir = path / "packs"
+        packs_dir.mkdir(exist_ok=True, parents=True)
+
+        charts_dir = path / "charts"
+        charts_dir.mkdir(exist_ok=True, parents=True)
+
+        print(f"Saving {len(self._packs)} packs")
+        for pack, charts in self._packs.items():
+            new_packs += 1
+            with suppress(IOError):
+                disk_charts = json.loads((packs_dir / f"{pack}.json").read_text())
+                charts.update(disk_charts)
+                new_packs -= 1
+
+            (packs_dir / f"{pack}.json").write_text(json.dumps(list(charts), sort_keys=True))
+
+        print(f"Saving {len(self._charts)} charts")
+        for hash, chart in self._charts.items():
+            new_charts += 1
+            chart_subdir = charts_dir / f"{hash[:2]}"
+            chart_subdir.mkdir(exist_ok=True, parents=True)
+            chart_path = chart_subdir / f"{hash[2:]}.json"
+
+            with suppress(IOError):
+                disk_chart = Chart(**json.loads(chart_path.read_text()))
+                # keep original data, only extend packs/diffs
+                disk_chart.packs.update(chart.packs)
+                disk_chart.diffs.update(chart.diffs)
+                chart = disk_chart
+                new_charts -= 1
+
+            chart_path.write_text(chart.to_json())
+
+        print(f"Saved {new_charts} new charts and {new_packs} new packs")
+
+        self._num_disk_packs += new_packs
+        self._num_disk_charts += new_charts
+
+        (path / "metadata.json").write_text(
+            json.dumps(
+                {
+                    "last_update": self._last_update.isoformat(),
+                    "num_charts": self._num_disk_charts,
+                    "num_packs": self._num_disk_packs,
+                },
+                sort_keys=True,
+                indent=2,
+            )
+        )
+
+        self._charts.clear()
+        self._packs.clear()
+
+    def get_chart(self, hash_v3: str) -> Chart | None:
+        if self._charts:
+            raise RuntimeError(f"{len(self._charts)} pending changes, please call to_disk first.")
+
+        chart_path = self._location / "charts" / f"{hash_v3[:2]}" / f"{hash_v3[2:]}.json"
+        try:
+            return Chart(**json.loads(chart_path.read_text()))
+        except IOError:
+            return None
+
+    def add_song(self, charts: list[Chart]):
+        self._last_update = datetime.datetime.now(tz=datetime.timezone.utc)
+
+        diffs = {c.hash for c in charts}
+
+        for chart in charts:
+            chart.diffs = diffs
+            hash = chart.hash
+            pack_name = chart.pack_name
+            self._packs[pack_name].add(hash)
+
+            if hash in self._charts:
+                self._charts[hash].packs.add(pack_name)
+                self._charts[hash].diffs.update(diffs)
+            else:
+                self._charts[hash] = chart
+
+
+STORAGE_DRIVERS = {
+    "inmem": InMemStorage,
+    "lazy": LazyStorage,
+}
