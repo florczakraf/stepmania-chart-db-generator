@@ -98,7 +98,7 @@ tournament pack.
 Each pack has a file in `<db>/packs` directory that contains a list of chart
 hashes within that packs, for example:
 ```
-$ cat "db_v2/packs/Yhono Originals.json" 
+$ cat "db_v2/packs/Yhono Originals.json"
 ["b395e84a3a864b96", "a188216a0bc0b837", "4526ddf1c2e112e6", "dd6c5f9c0c6496ef", "96abb92df1877371"]
 ```
 
@@ -114,6 +114,14 @@ directory trees and process them in 12 parallel threads. You might want to
 tweak number of workers depending on the type of disk and number of CPU cores
 you have. On my machine it processed over 125k simfiles in 5 minutes where
 charts were on an HDD and db was being saved to an SSD, 4c/4t i5-4460 CPU.
+
+## Dev
+```
+$ poetry install
+$ poetry shell
+$ pre-commit
+$ pre-commit run -a
+```
 
 ## License
 The project is licensed under GNU Affero General Public License v3.0 or later.

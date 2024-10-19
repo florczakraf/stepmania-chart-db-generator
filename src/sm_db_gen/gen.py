@@ -3,17 +3,16 @@ import concurrent.futures
 import os
 from collections import Counter
 from functools import partial
+from hashlib import sha1
 from io import StringIO
 from pathlib import Path
-from hashlib import sha1
 from pprint import pprint
 
 import simfile
 import tqdm
 
-from sm_db_gen.db import StorageV2, InMemStorage, Chart, STORAGE_DRIVERS
+from sm_db_gen.db import STORAGE_DRIVERS, Chart, InMemStorage, StorageV2
 from sm_db_gen.reference import get_v1_reference
-
 
 DIFF_MAPPING = {
     # based on SM
@@ -90,7 +89,7 @@ def process_chart(sim, chart, path) -> Chart | None:
         minimized_chart_string = "\n".join(minimized_chart[:-1])
         raw_bpms = (getattr(chart, "bpms", None) or sim.bpms).replace("\n", "")
         bpms = normalize_bpms(raw_bpms)
-        hash_v3 = sha1((minimized_chart_string + bpms).encode()).hexdigest()[:16]
+        hash_v3 = sha1((minimized_chart_string + bpms).encode(), usedforsecurity=False).hexdigest()[:16]
     except Exception as e:
         print(f"{path}: Failed to process chart: {e}")
         return None
@@ -175,7 +174,7 @@ def load_simfile(p: Path) -> simfile.Simfile | None:
                             decoded = b.decode(encoding)
                             processed_split_lines.append(decoded)
                             break
-                        except Exception:
+                        except UnicodeDecodeError:
                             continue
                     else:
                         print(f"Can't decode line {b}, skipping it")
