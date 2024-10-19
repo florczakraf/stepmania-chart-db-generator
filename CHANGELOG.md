@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.1.0...HEAD)
+### Added
+- Added bandit, isort and pre-commit
+- Added GitHub pipeline to enforce static code analysis
+
+### Changed
+- Fixed issues reported by bandit (sha1 with `usedforsecurity=False` and too broad `except` clause)
+
 ## [v2.1.0] 2024-10-17
 
 ### Added
