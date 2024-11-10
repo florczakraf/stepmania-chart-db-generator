@@ -97,6 +97,13 @@ def process_chart(sim, chart, path) -> Chart | None:
     try:
         pack_name = path.parent.parent.name.encode("utf-8", "ignore").decode("utf-8")
 
+        # there are some non-integer meters in the wild, StepMania fallbacks to 1
+        try:
+            diff_number = int(float(chart.meter)) if chart.meter else 1
+        except ValueError as e:
+            print(f"{path}: Failed to process meter, falling back to 1: {e}")
+            diff_number = 1
+
         return Chart(
             **{
                 "subtitletranslit": sim.subtitletranslit or "",
@@ -106,9 +113,7 @@ def process_chart(sim, chart, path) -> Chart | None:
                 "pack_name": pack_name,
                 "hash": hash_v3,
                 "title": sim.title or "(unknown title)",
-                "diff_number": int(float(chart.meter))
-                if chart.meter
-                else 1,  # there are some non-integer meters in the wild, StepMania fallbacks to 1 when empty
+                "diff_number": diff_number,
                 "artist": sim.artist or "(unknown artist)",
                 "subtitle": sim.subtitle or "",
                 "steps_type": chart.stepstype,

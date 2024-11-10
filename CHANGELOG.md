@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased](https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.1.0...HEAD)
+### Changed
+- Extended handling of broken meters in order to treat them like stepmania does -- fallback to 1
+
 ### Added
 - Added bandit, isort and pre-commit
 - Added GitHub pipeline to enforce static code analysis
