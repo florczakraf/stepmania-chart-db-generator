@@ -66,7 +66,7 @@ def format_float(float_string):
 
 def normalize_bpms(raw_bpms):
     normalized = []
-    beats_bpms = raw_bpms.strip().split(",")
+    beats_bpms = raw_bpms.strip().strip(",").split(",")
     for beat_bpm in beats_bpms:
         beat, bpm = beat_bpm.split("=")
         normalized.append(f"{format_float(beat)}={format_float(bpm)}")

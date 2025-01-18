@@ -3,6 +3,7 @@
 ## [Unreleased](https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.1.0...HEAD)
 ### Changed
 - Extended handling of broken meters in order to treat them like stepmania does -- fallback to 1
+- Trailing commas are now stripped from BPMs before calculating hash
 
 ### Added
 - Added bandit, isort and pre-commit
