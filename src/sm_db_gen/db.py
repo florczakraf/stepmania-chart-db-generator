@@ -125,7 +125,7 @@ class InMemStorage(StorageV2):
         print(f"Saving {len(self._touched_packs)}/{self.num_packs} packs")
         for pack in self._touched_packs:
             charts = self._packs[pack]
-            (packs_dir / f"{pack}.json").write_text(json.dumps(list(charts), sort_keys=True))
+            (packs_dir / f"{pack}.json").write_text(json.dumps(sorted(charts), sort_keys=True))
 
         print(f"Saving {len(self._touched_charts)}/{self.num_charts} charts")
         for hash in self._touched_charts:

@@ -1,16 +1,19 @@
 # Changelog
 
-## [Unreleased](https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.1.0...HEAD)
+## [Unreleased](https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.2.0...HEAD)
+
+
+## [v2.2.0] 2026-08-17
+
 ### Changed
 - Extended handling of broken meters in order to treat them like stepmania does -- fallback to 1
+- Fixed issues reported by bandit (sha1 with `usedforsecurity=False` and too broad `except` clause)
 - Trailing commas are now stripped from BPMs before calculating hash
+- Charts within pack are now sorted on write
 
 ### Added
 - Added bandit, isort and pre-commit
 - Added GitHub pipeline to enforce static code analysis
-
-### Changed
-- Fixed issues reported by bandit (sha1 with `usedforsecurity=False` and too broad `except` clause)
 
 ## [v2.1.0] 2024-10-17
 
@@ -28,5 +31,6 @@ improved parsing capabilities and speed. See README.md for the format
 specification.
 
 
+[v2.2.0]: https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.1.0...v2.2.0
 [v2.1.0]: https://github.com/florczakraf/stepmania-chart-db-generator/compare/v2.0.0...v2.1.0
 [v2.0.0]: https://github.com/florczakraf/stepmania-chart-db-generator/tree/v2.0.0
