@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stepmania-chart-db-generator"
-version = "2.2.0-pre"
+version = "2.3.0-pre"
 description = ""
 authors = ["Rafał Florczak <florczak.raf@gmail.com>"]
 readme = "README.md"
